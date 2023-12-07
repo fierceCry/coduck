@@ -2,7 +2,9 @@ package coduck.igochaja.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,11 +21,13 @@ public class Post {
     private String content;
     private List<String> images;
     private List<String> tags;
-    private Date createdAt;
-    private Date updatedAt;
     @DBRef
     private User user;
     @DBRef
     private PostsCategory postCategory;
+    @CreatedDate
+    private Date createdAt;
+    @LastModifiedDate
+    private Date updatedAt;
     // getter, setter, constructors
 }

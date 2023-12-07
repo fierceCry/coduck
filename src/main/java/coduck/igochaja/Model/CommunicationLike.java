@@ -2,7 +2,9 @@ package coduck.igochaja.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -21,7 +23,10 @@ public class CommunicationLike {
     @DBRef
     private User user;
 
+    @CreatedDate
     private Date createdAt;
+    @LastModifiedDate
+    private Date updatedAt;
     // getters, setters, constructors
 }
 
