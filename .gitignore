@@ -32,8 +32,8 @@ build/
 ### VS Code ###
 .vscode/
 
-# Ignore application.properties
-application.properties
+# # Ignore application.properties
+# application.properties
 
 # Created by https://www.toptal.com/developers/gitignore/api/vim,macos,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,macos,linux
