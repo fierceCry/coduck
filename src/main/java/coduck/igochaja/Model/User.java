@@ -12,10 +12,11 @@ import java.util.Date;
 
 @Getter
 @Setter
-@Document(collection = "users") //유저
+@Document(collection = "users")
 public class User {
     @Id
     private String id;
+    private String kakaoId;
     private String email;
     private String password;
     private String nickName;
@@ -28,5 +29,5 @@ public class User {
 
     @LastModifiedDate
     private Date updatedAt;
-    // getter, setter, constructors
+
 }
