@@ -1,5 +1,6 @@
 package coduck.igochaja.Service;
 
+import coduck.igochaja.Config.SecurityConfig;
 import coduck.igochaja.Repository.UserRepository;
 import com.nimbusds.jose.shaded.gson.JsonElement;
 import com.nimbusds.jose.shaded.gson.JsonObject;
@@ -8,7 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -24,6 +29,8 @@ public class KakaoService extends DefaultOAuth2UserService {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private SecurityConfig securityConfig;
 
     public String getAccessToken(String code) {
         String accessToken = "";
@@ -104,24 +111,29 @@ public class KakaoService extends DefaultOAuth2UserService {
             while((line = br.readLine()) != null){
                 responseSb.append(line);
             }
+
             String result = responseSb.toString();
 
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);
             JsonObject properties = element.getAsJsonObject().get("properties").getAsJsonObject();
             JsonObject kakaoAccount = element.getAsJsonObject().get("kakao_account").getAsJsonObject();
+            JsonObject profile = kakaoAccount.get("profile").getAsJsonObject();
             String socialId = element.getAsJsonObject().get("id").getAsString();
             String name = properties.getAsJsonObject().get("nickname").getAsString();
             String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
-            String image = kakaoAccount.getAsJsonObject().get("image").getAsString();
+            String image = profile.getAsJsonObject().get("profile_image_url").getAsString();
             String social = "KAKAO";
 
-            userRepository.saveUser(socialId, name, email, social, image);
+            if(userRepository.findByEmail(email) == null){
+                userRepository.saveUser(socialId, name, email, social, image);
+            }
 
             userInfo.put("socialId", socialId);
             userInfo.put("name", name);
             userInfo.put("email", email);
             userInfo.put("social", social);
+            userInfo.put("image", image);
 
             br.close();
 
@@ -130,6 +142,7 @@ public class KakaoService extends DefaultOAuth2UserService {
         }
         return userInfo;
     }
+
 }
 
 
