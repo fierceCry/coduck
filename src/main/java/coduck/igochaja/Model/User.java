@@ -34,11 +34,12 @@ public class User {
     @Field("updatedAt")
     private LocalDateTime updatedAt;
 
-    public User(String socialId, String nickName, String email, String social) {
+    public User(String socialId, String nickName, String email, String social, String image) {
         this.socialId = socialId;
         this.nickName = nickName;
         this.email = email;
         this.social = social;
+        this.image = image;
     }
 }
 

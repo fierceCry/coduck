@@ -113,9 +113,10 @@ public class KakaoService extends DefaultOAuth2UserService {
             String socialId = element.getAsJsonObject().get("id").getAsString();
             String name = properties.getAsJsonObject().get("nickname").getAsString();
             String email = kakaoAccount.getAsJsonObject().get("email").getAsString();
+            String image = kakaoAccount.getAsJsonObject().get("image").getAsString();
             String social = "KAKAO";
 
-            userRepository.saveUser(socialId, name, email, social);
+            userRepository.saveUser(socialId, name, email, social, image);
 
             userInfo.put("socialId", socialId);
             userInfo.put("name", name);
