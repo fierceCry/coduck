@@ -13,8 +13,6 @@ public class Comment {
     private Date createdAt;
     private Date updatedAt;
 
-    // 생성자, 게터, 세터 등이 있다면 이어서 작성하세요.
-
     public String getId() {
         return id;
     }
