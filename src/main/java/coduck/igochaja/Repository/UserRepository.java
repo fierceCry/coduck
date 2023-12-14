@@ -8,4 +8,3 @@ public interface UserRepository extends MongoRepository<User, String> {
         return save(new User(socialId, name, email, social, image));
     }
 }
-
