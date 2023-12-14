@@ -125,13 +125,15 @@ public class KakaoService extends DefaultOAuth2UserService {
             String image = profile.getAsJsonObject().get("profile_image_url").getAsString();
             String social = "KAKAO";
 
-            userRepository.saveUser(socialId, name, email, social, image);
+            if(userRepository.findByEmail(email) == null){
+                userRepository.saveUser(socialId, name, email, social, image);
+            }
 
             userInfo.put("socialId", socialId);
             userInfo.put("name", name);
             userInfo.put("email", email);
-            userInfo.put("profileImage", image);
             userInfo.put("social", social);
+            userInfo.put("image", image);
 
             br.close();
 
