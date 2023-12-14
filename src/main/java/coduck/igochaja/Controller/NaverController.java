@@ -20,14 +20,11 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Controller
-@RequestMapping("/login/oauth2")
+@RequestMapping("/naver/oauth2")
 public class NaverController {
-
-    private static final Logger logger = LoggerFactory.getLogger(NaverController.class);
 
     private static final String RESPONSE_TYPE = "code";
     private static final String GRANT_TYPE = "authorization_code";
-
     private final NaverConfig naverConfig;
     private final NaverService naverService;
 
@@ -37,12 +34,11 @@ public class NaverController {
         this.naverService = naverService;
     }
 
-    @GetMapping("/naver")
-    public void redirectToNaverAuthorization(HttpServletResponse response, HttpServletRequest request) throws IOException {
+    @GetMapping("/login")
+    public void redirectToNaverAuthorization(HttpServletResponse response, HttpSession session) throws IOException {
         String stateToken = generateStateToken();
         String naverAuthUrl = buildNaverAuthUrl(stateToken);
 
-        HttpSession session = request.getSession(true);
         session.setAttribute("stateToken", stateToken);
         response.sendRedirect(naverAuthUrl);
     }
@@ -50,7 +46,7 @@ public class NaverController {
     private String generateStateToken() {
         return UUID.randomUUID().toString();
     }
-
+    
     private String buildNaverAuthUrl(String stateToken) {
         return UriComponentsBuilder.fromUriString(naverConfig.getRequestTokenUri())
                 .queryParam("response_type", RESPONSE_TYPE)
@@ -60,7 +56,7 @@ public class NaverController {
                 .toUriString();
     }
 
-    @GetMapping("/naver/callback")
+    @GetMapping("/callback")
     @ResponseBody
     public ResponseEntity<?> handleNaverCallback(@RequestParam("code") String code, @RequestParam(value = "state", required = false) String state, HttpServletRequest request) {
 
@@ -69,22 +65,24 @@ public class NaverController {
             return new ResponseEntity<>("Invalid state token", HttpStatus.FORBIDDEN);
         }
 
-        session.removeAttribute("stateToken");
         ResponseEntity<String> responseEntity = exchangeCodeForAccessToken(code, state);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
             return new ResponseEntity<>("Failed to retrieve access token", HttpStatus.BAD_REQUEST);
         }
 
-        JSONObject jsonObject = new JSONObject(responseEntity.getBody());
-        String accessToken = jsonObject.getString("access_token");
-        naverService.getUserInfo(accessToken);
-        return new ResponseEntity<>("User successfully authenticated", HttpStatus.OK);
+        String accessToken = new JSONObject(responseEntity.getBody()).optString("access_token");
+        if(accessToken.isEmpty()){
+            return new ResponseEntity<>("Access token not found", HttpStatus.BAD_REQUEST);
+        }
+
+        ResponseEntity<?> userInfo = naverService.getUserInfo(accessToken);
+        return new ResponseEntity<>(userInfo, HttpStatus.OK);
     }
 
     private ResponseEntity<String> exchangeCodeForAccessToken(String code, String state) {
         RestTemplate restTemplate = new RestTemplate();
-
         HttpHeaders headers = new HttpHeaders();
+
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();

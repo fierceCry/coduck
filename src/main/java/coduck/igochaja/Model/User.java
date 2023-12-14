@@ -2,15 +2,16 @@ package coduck.igochaja.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
-
+import org.springframework.data.annotation.CreatedDate;
 import java.util.Date;
 
 @Getter
 @Setter
+@ToString // toString 메소드 자동 생성
 @Document(collection = "users") //유저
 public class User {
     @Id
@@ -27,5 +28,12 @@ public class User {
 
     @LastModifiedDate
     private Date updatedAt;
-    // getter, setter, constructors
+
+    public User(String id, String nickName, String email, String social, String image) {
+        this.id = id;
+        this.nickName = nickName;
+        this.email = email;
+        this.social = social;
+        this.image = image;
+    }
 }
