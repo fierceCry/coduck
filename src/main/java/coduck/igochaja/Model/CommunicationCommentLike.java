@@ -2,6 +2,7 @@ package coduck.igochaja.Model;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -12,6 +13,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@ToString
 @Document(collection = "communication_comment_like") // 찾아주세요 댓글 좋아요
 public class CommunicationCommentLike {
     @Id
