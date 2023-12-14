@@ -1,20 +1,24 @@
 package coduck.igochaja.Model;
 
+
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Getter
 @Setter
-@Document(collection = "users") //유저
+@Document(collection = "users")
 public class User {
     @Id
     private String id;
+    private String socialId;
     private String email;
     private String password;
     private String nickName;
@@ -23,9 +27,18 @@ public class User {
     private String image;
 
     @CreatedDate
-    private Date createdAt;
+    @Field("createdAt")
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private Date updatedAt;
-    // getter, setter, constructors
+    @Field("updatedAt")
+    private LocalDateTime updatedAt;
+
+    public User(String socialId, String nickName, String email, String social) {
+        this.socialId = socialId;
+        this.nickName = nickName;
+        this.email = email;
+        this.social = social;
+    }
 }
+
