@@ -42,7 +42,7 @@ public class JwtTokenConfig {
 
     public String getSocialId(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        return claims.get("socialId", String.class);
+        return claims.get("_id", String.class);
     }
 
     public String extractToken(HttpServletRequest request) {

@@ -12,7 +12,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import org.springframework.beans.factory.annotation.Value;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +22,6 @@ public class NaverService {
 
     @Autowired
     private JwtTokenConfig jwtTokenConfig;
-
 
     @Autowired
     public NaverService(NaverConfig naverProperties) {

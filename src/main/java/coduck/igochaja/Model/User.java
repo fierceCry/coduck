@@ -40,6 +40,7 @@ public class User {
         this.nickName = nickName;
         this.email = email;
         this.social = social;
+        this.image = image;
     }
 }
 

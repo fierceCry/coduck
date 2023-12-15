@@ -47,7 +47,6 @@ public class FileUploadController {
             metadata.setContentLength(file.getSize());
             amazonS3Client.putObject(bucket, fileName, file.getInputStream(), metadata);
 
-            // S3에서 파일 URL 가져오기
             String fileUrl = amazonS3Client.getUrl(bucket, fileName).toString();
 
             return ResponseEntity.ok(fileUrl);

@@ -46,7 +46,7 @@ public class NaverController {
     private String generateStateToken() {
         return UUID.randomUUID().toString();
     }
-    
+
     private String buildNaverAuthUrl(String stateToken) {
         return UriComponentsBuilder.fromUriString(naverConfig.getRequestTokenUri())
                 .queryParam("response_type", RESPONSE_TYPE)
