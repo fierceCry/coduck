@@ -1,5 +1,6 @@
 package coduck.igochaja.Service;
 
+import coduck.igochaja.Config.JwtTokenConfig;
 import coduck.igochaja.Config.NaverConfig;
 import coduck.igochaja.Repository.UserRepository;
 import coduck.igochaja.Model.User;
@@ -11,10 +12,6 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,8 +20,8 @@ public class NaverService {
 
     private static final Logger logger = LoggerFactory.getLogger(NaverService.class);
 
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    @Autowired
+    private JwtTokenConfig jwtTokenConfig;
 
     @Autowired
     public NaverService(NaverConfig naverProperties) {
@@ -52,7 +49,7 @@ public class NaverService {
                 String image = userInfoJson.getJSONObject("response").getString("profile_image");
                 String social = "NAVER";
                 User savedUser = userRepository.saveUser(socialId, name, email, social, image);
-                String token = generateToken(savedUser);
+                String token = jwtTokenConfig.generateToken(savedUser);
                 Map<String, String> tokenMap = new HashMap<>();
                 tokenMap.put("token", token);
                 tokenMap.put("nickname", name);
@@ -67,18 +64,5 @@ public class NaverService {
         } catch (Exception e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error occurred");
         }
-    }
-    private String generateToken(User user) {
-        long now = System.currentTimeMillis();
-        long expirationTime = now + 7200000;
-
-        return Jwts.builder()
-                .setSubject(user.getId())
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(expirationTime))
-                .claim("socialId", user.getSocialId())
-                .claim("social", user.getSocial())
-                .signWith(SignatureAlgorithm.HS256, jwtSecret)
-                .compact();
     }
 }
