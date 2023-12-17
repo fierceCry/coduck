@@ -20,4 +20,3 @@ public class UserController {
         return UserService.createUser(user);
     }
 }
-

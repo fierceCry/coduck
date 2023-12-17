@@ -14,6 +14,7 @@ import org.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class NaverService {
@@ -24,11 +25,11 @@ public class NaverService {
     private JwtTokenConfig jwtTokenConfig;
 
     @Autowired
-    public NaverService(NaverConfig naverProperties) {
-    }
+    private UserRepository userRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    public NaverService(NaverConfig naverProperties) {
+    }
 
     public ResponseEntity<?> getUserInfo(String accessToken) {
         try {
@@ -48,21 +49,37 @@ public class NaverService {
                 String email = userInfoJson.getJSONObject("response").getString("email");
                 String image = userInfoJson.getJSONObject("response").getString("profile_image");
                 String social = "NAVER";
-                User savedUser = userRepository.saveUser(socialId, name, email, social, image);
-                String token = jwtTokenConfig.generateToken(savedUser);
-                Map<String, String> tokenMap = new HashMap<>();
-                tokenMap.put("token", token);
-                tokenMap.put("nickname", name);
-                tokenMap.put("email", email);
-                tokenMap.put("image", image);
 
-                return ResponseEntity.ok().body(tokenMap);
+                // 동일한 이메일을 가진 사용자 확인
+                Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(email, social));
+                if (existingUser.isPresent()) {
+                    // 동일한 이메일을 가진 사용자가 이미 존재하는 경우 토큰을 생성하여 반환
+                    User user = existingUser.get();
+                    String token = jwtTokenConfig.generateToken(user);
+                    Map<String, String> tokenMap = new HashMap<>();
+                    tokenMap.put("token", token);
+                    tokenMap.put("nickname", user.getNickName());
+                    tokenMap.put("email", user.getEmail());
+                    tokenMap.put("image", user.getImage());
+                    return ResponseEntity.ok().body(tokenMap);
+                } else {
+                    // 동일한 이메일을 가진 사용자가 없는 경우 사용자를 데이터베이스에 저장하고 토큰을 생성하여 반환
+                    User savedUser = userRepository.saveUser(socialId, name, email, social, image);
+                    String token = jwtTokenConfig.generateToken(savedUser);
+                    Map<String, String> tokenMap = new HashMap<>();
+                    tokenMap.put("token", token);
+                    tokenMap.put("nickname", name);
+                    tokenMap.put("email", email);
+                    tokenMap.put("image", image);
+
+                    return ResponseEntity.ok().body(tokenMap);
+                }
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자 정보를 저장하는 데 실패했습니다.");
             }
-            else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Failed to save user's information");
-            }
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error occurred");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("오류가 발생했습니다.");
         }
     }
+
 }
