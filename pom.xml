@@ -115,8 +115,8 @@
 			<artifactId>spring-cloud-starter-aws</artifactId>
 			<version>2.2.6.RELEASE</version>
 		</dependency>
-
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
