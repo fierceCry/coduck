@@ -27,6 +27,5 @@ public class PostsComment {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getter, setter, constructors
 }
 
