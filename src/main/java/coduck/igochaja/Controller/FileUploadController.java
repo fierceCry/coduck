@@ -34,14 +34,7 @@ public class FileUploadController {
     @PatchMapping
     public ResponseEntity<Map<String, Object>> uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         try {
-<<<<<<< HEAD
-            String token = jwtTokenConfig.extractToken(request);
-            if (token == null || !jwtTokenConfig.validateToken(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
-            }
 
-            String socialId = jwtTokenConfig.getSocialId(token);
-=======
             if (file.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "No file uploaded"));
@@ -52,7 +45,6 @@ public class FileUploadController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "Invalid token"));
             }
->>>>>>> main
 
             String objectId = getObjectIdFromToken(token);
             String fileUrl = uploadToS3(file, objectId);
