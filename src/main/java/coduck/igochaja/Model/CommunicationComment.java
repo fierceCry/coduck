@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@Document(collection = "communication_comment") // 찾아주세요 댓글
+@Document(collection = "communication_comment")
 public class CommunicationComment {
     @Id
     private String id;
@@ -30,6 +30,5 @@ public class CommunicationComment {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getters, setters, constructors
 }
 

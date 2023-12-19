@@ -4,7 +4,6 @@ import org.springdoc.core.GroupedOpenApi;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
@@ -24,7 +23,6 @@ public class SwaggerConfig {
 
     @Bean
     public GroupedOpenApi publicApi() {
-        // pathsToMatch로 원하는 경로의 api만 나오도록 설정
         return GroupedOpenApi.builder()
                 .group("v1")
                 .pathsToMatch("/v1/**")
@@ -48,7 +46,6 @@ public class SwaggerConfig {
     @Bean
     public GlobalOpenApiCustomizer customerGlobalHeaderOpenApiCustomiser() {
         return openApi -> {
-            // 공통으로 사용되는 response 설정
             openApi.getPaths().values().forEach(pathItem -> pathItem.readOperations().forEach(operation -> {
                 ApiResponses apiResponses = operation.getResponses();
                 apiResponses.addApiResponse("200", createApiResponse(apiResponses.get("200").getDescription(), apiResponses.get("200").getContent()));

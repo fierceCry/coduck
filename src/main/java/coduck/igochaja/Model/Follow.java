@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@Document(collection = "follow") // 팔로잉 / 팔로워
+@Document(collection = "follow")
 public class Follow {
     @Id
     private String id;
@@ -26,5 +26,4 @@ public class Follow {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getter, setter, constructors
 }

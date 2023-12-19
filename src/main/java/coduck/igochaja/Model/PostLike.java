@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@Document(collection = "post_like") // 게시글 좋아요
+@Document(collection = "post_like")
 public class PostLike {
     @Id
     private String id;
@@ -28,6 +28,5 @@ public class PostLike {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getters, setters, constructors
 }
 
