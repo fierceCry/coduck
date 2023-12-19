@@ -1,12 +1,12 @@
 package coduck.igochaja.Service;
 
+import coduck.igochaja.Config.JwtTokenConfig;
 import coduck.igochaja.Config.KakaoConfig;
-import coduck.igochaja.Config.SecurityConfig;
+import coduck.igochaja.Model.User;
 import coduck.igochaja.Repository.UserRepository;
 import com.nimbusds.jose.shaded.gson.JsonElement;
 import com.nimbusds.jose.shaded.gson.JsonObject;
 import com.nimbusds.jose.shaded.gson.JsonParser;
-import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,6 @@ import java.net.URL;
 import java.util.HashMap;
 
 
-
 @Service
 public class KakaoService extends DefaultOAuth2UserService {
     private static final Logger log = LoggerFactory.getLogger(KakaoService.class);
@@ -27,10 +26,13 @@ public class KakaoService extends DefaultOAuth2UserService {
 
     private KakaoConfig kakaoConfig;
 
+    private JwtTokenConfig jwtTokenConfig;
+
     @Autowired
-    public KakaoService(UserRepository userRepository, KakaoConfig kakaoConfig) {
+    public KakaoService(UserRepository userRepository, KakaoConfig kakaoConfig, JwtTokenConfig jwtTokenConfig) {
         this.userRepository = userRepository;
         this.kakaoConfig = kakaoConfig;
+        this.jwtTokenConfig = jwtTokenConfig;
     }
 
     public String getAccessToken(String code) {
@@ -71,7 +73,7 @@ public class KakaoService extends DefaultOAuth2UserService {
                 responseSb.append(line);
             }
             String result = responseSb.toString();
-
+            log.info("kakaoservice.result :::" + result);
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);
             accessToken = element.getAsJsonObject().get("access_token").getAsString();
@@ -80,13 +82,14 @@ public class KakaoService extends DefaultOAuth2UserService {
             br.close();
             bw.close();
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("An error occurred while getting user info from KakaoService/getAccessToken: ", e);
         }
+        log.error("getAccessToken successfully.");
         return accessToken;
     }
 
     public HashMap<String, Object> getUserInfo(String accessToken) {
-        HashMap<String, Object> userInfo = new HashMap<>();
+        HashMap<String, Object> tokenMap = new HashMap<>();
         try{
             URL url = new URL(kakaoConfig.getUserInfoUri());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -122,24 +125,28 @@ public class KakaoService extends DefaultOAuth2UserService {
             String image = profile.getAsJsonObject().get("profile_image_url").getAsString();
             String social = "KAKAO";
 
-            if(userRepository.findByEmail(email) == null){
-                userRepository.saveUser(socialId, name, email, social, image);
+            User resultUser = new User(socialId, name, email, social, image);
+
+            if(userRepository.findByEmail(email).isEmpty()){
+                resultUser = userRepository.saveUser(socialId, name, email, social, image);
             }
 
-            userInfo.put("socialId", socialId);
-            userInfo.put("name", name);
-            userInfo.put("email", email);
-            userInfo.put("social", social);
-            userInfo.put("image", image);
+            String token = jwtTokenConfig.generateToken(resultUser);
+
+            tokenMap.put("token", token);
+            tokenMap.put("nickname", name);
+            tokenMap.put("email", email);
+            tokenMap.put("image", image);
 
             br.close();
 
         }catch (Exception e){
-            e.printStackTrace();
+            log.error("An error occurred while getting user info from KakaoService/getUserInfo: ", e);
+            tokenMap.put("error", "An error occurred while getting user info from Kakao login.");
         }
-        return userInfo;
+        tokenMap.put("success", "User information retrieved successfully.");
+        return tokenMap;
     }
-
 }
 
 

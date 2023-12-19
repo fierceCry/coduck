@@ -3,8 +3,6 @@ package coduck.igochaja.Controller;
 import coduck.igochaja.Config.NaverConfig;
 import coduck.igochaja.Service.NaverService;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;

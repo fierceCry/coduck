@@ -33,13 +33,11 @@ public class FileUploadController {
     public ResponseEntity<String> uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         try {
             String token = jwtTokenConfig.extractToken(request);
-            logger.info("token:"+token);
             if (token == null || !jwtTokenConfig.validateToken(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
             }
 
             String socialId = jwtTokenConfig.getSocialId(token);
-            logger.info("socialId:"+socialId);
 
             String fileName = socialId + "/" + file.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
