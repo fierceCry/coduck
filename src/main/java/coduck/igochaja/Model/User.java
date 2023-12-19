@@ -1,6 +1,5 @@
 package coduck.igochaja.Model;
 
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString // toString 메소드 자동 생성
+@ToString
 @Document(collection = "users")
 public class User {
     @Id

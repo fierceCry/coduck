@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@Document(collection = "communication") // 찾아주세요
+@Document(collection = "communication")
 public class Communication {
     @Id
     private String id;

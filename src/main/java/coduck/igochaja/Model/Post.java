@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-@Document(collection = "posts") // 게시글
+@Document(collection = "posts")
 public class Post {
     @Id
     private String id;
@@ -31,5 +31,4 @@ public class Post {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getter, setter, constructors
 }
