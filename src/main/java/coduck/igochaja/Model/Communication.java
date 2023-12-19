@@ -28,7 +28,6 @@ public class Communication {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getters, setters, constructors
 }
 
 
