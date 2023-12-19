@@ -1,13 +1,10 @@
 package coduck.igochaja.Config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-@RequiredArgsConstructor
 @Data
 @Component
 public class GoogleConfig {
@@ -26,7 +23,13 @@ public class GoogleConfig {
     @Value("${google.auth.url}")
     private String authUrl;
 
-    private final ObjectMapper objectMapper;
-    private final RestTemplate restTemplate;
+    @Value("${google.token-uri}")
+    private String tokenUrl;
+
+    @Value("${google.resource-uri}")
+    private String resourceUrl;
+
+  // private final ObjectMapper objectMapper;
+  // private final RestTemplate restTemplate;
 
 }
