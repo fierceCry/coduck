@@ -18,12 +18,12 @@ public class JwtTokenConfig {
 
     public String generateToken(User user) {
         long now = System.currentTimeMillis();
-        long expirationTime = now + 7200000; // 2시간 후 만료
+        long expirationTime = now + 18000000;
 
         return Jwts.builder()
-                .setSubject(user.getId())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(expirationTime))
+                .claim("_id", user.getId())
                 .claim("socialId", user.getSocialId())
                 .claim("social", user.getSocial())
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)

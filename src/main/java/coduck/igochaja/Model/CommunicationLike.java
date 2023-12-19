@@ -14,7 +14,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@Document(collection = "communication_like") // 찾아주세요 좋아요
+@Document(collection = "communication_like")
 public class CommunicationLike {
     @Id
     private String id;
@@ -29,7 +29,6 @@ public class CommunicationLike {
     private Date createdAt;
     @LastModifiedDate
     private Date updatedAt;
-    // getters, setters, constructors
 }
 
 

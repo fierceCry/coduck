@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Optional;
 
 
 @Service
@@ -127,7 +128,7 @@ public class KakaoService extends DefaultOAuth2UserService {
 
             User resultUser = new User(socialId, name, email, social, image);
 
-            if(userRepository.findByEmail(email).isEmpty()){
+            if(!Optional.ofNullable(userRepository.findByEmail(email, social)).isPresent()){
                 resultUser = userRepository.saveUser(socialId, name, email, social, image);
             }
 
