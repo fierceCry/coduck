@@ -6,8 +6,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface UserRepository extends MongoRepository<User, String> {
 
     default User saveUser(String socialId, String name, String email, String social, String image) {
-        return save(new User(socialId, name, email, social, image));
+        User newUser = new User(socialId, name, email, social, image);
+        return save(newUser);
     }
 
-    public User findByEmail(String email);
+    User findByEmail(String email);
 }
