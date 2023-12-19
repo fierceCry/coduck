@@ -3,8 +3,6 @@ package coduck.igochaja.Controller;
 import coduck.igochaja.Config.NaverConfig;
 import coduck.igochaja.Service.NaverService;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -17,14 +15,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.UUID;
 import jakarta.servlet.http.Cookie;
 
 @Controller
 @RequestMapping("/naver/oauth2")
 public class NaverController {
-    private static final Logger logger = LoggerFactory.getLogger(NaverController.class);
 
     private static final String RESPONSE_TYPE = "code";
     private static final String GRANT_TYPE = "authorization_code";
