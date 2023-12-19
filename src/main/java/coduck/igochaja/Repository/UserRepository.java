@@ -1,5 +1,6 @@
 package coduck.igochaja.Repository;
 
+
 import coduck.igochaja.Model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
@@ -9,5 +10,14 @@ public interface UserRepository extends MongoRepository<User, String> {
         return save(new User(socialId, name, email, social, image));
     }
 
-    public User findByEmail(String email);
+    public User findByEmail(String email, String social);
+
+    default User ProfileImage(String fileUrl, String objectId) {
+        return findById(objectId)
+                .map(user -> {
+                    user.setImage(fileUrl);
+                    return save(user);
+                })
+                .orElse(null);
+    }
 }
