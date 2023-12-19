@@ -106,23 +106,23 @@ public class NaverController {
         if (session != null) {
             session.invalidate();
         }
-
-        // 쿠키 삭제
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("JSESSIONID")) { // 인증 관련 쿠키 이름으로 변경
-                    cookie.setValue("");
-                    cookie.setPath("/");
-                    cookie.setMaxAge(0);
-                    response.addCookie(cookie);
-                }
-            }
-        }
-        // 캐시 제어 헤더 추가
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
+//
+//        // 쿠키 삭제
+//        Cookie[] cookies = request.getCookies();
+//        if (cookies != null) {
+//            for (Cookie cookie : cookies) {
+//                if (cookie.getName().equals("JSESSIONID")) { // 인증 관련 쿠키 이름으로 변경
+//                    cookie.setValue("");
+//                    cookie.setPath("/");
+//                    cookie.setMaxAge(0);
+//                    response.addCookie(cookie);
+//                }
+//            }
+//        }
+//        // 캐시 제어 헤더 추가
+//        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+//        response.setHeader("Pragma", "no-cache");
+//        response.setDateHeader("Expires", 0);
 
         return "redirect:/naver/oauth2/login"; // 로그인 페이지로 리다이렉트
     }
