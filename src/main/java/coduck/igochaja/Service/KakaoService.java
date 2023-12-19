@@ -10,13 +10,17 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -75,7 +79,7 @@ public class KakaoService extends DefaultOAuth2UserService {
                 responseSb.append(line);
             }
             String result = responseSb.toString();
-            log.info("kakaoservice.result :::" + result);
+
             JsonParser parser = new JsonParser();
             JsonElement element = parser.parse(result);
             accessToken = element.getAsJsonObject().get("access_token").getAsString();
@@ -90,9 +94,8 @@ public class KakaoService extends DefaultOAuth2UserService {
         return accessToken;
     }
 
-    public HashMap<String, Object> getUserInfo(String accessToken) {
-        HashMap<String, Object> tokenMap = new HashMap<>();
-        try{
+    public HashMap<String, Object> getUserInfo(String accessToken) throws IOException {
+
             URL url = new URL(kakaoConfig.getUserInfoUri());
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -113,7 +116,7 @@ public class KakaoService extends DefaultOAuth2UserService {
             while((line = br.readLine()) != null){
                 responseSb.append(line);
             }
-
+            br.close();
             String result = responseSb.toString();
 
             JsonParser parser = new JsonParser();
@@ -127,26 +130,23 @@ public class KakaoService extends DefaultOAuth2UserService {
             String image = profile.getAsJsonObject().get("profile_image_url").getAsString();
             String social = "KAKAO";
 
-            User resultUser = new User(socialId, name, email, social, image);
-
-            if(!Optional.ofNullable(userRepository.findByEmail(email, social)).isPresent()){
-                resultUser = userRepository.saveUser(socialId, name, email, social, image);
+            Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(email, social));
+            if (!existingUser.isPresent()) {
+                User newUser = new User(socialId, name, email, social, image);
+                User savedUser = userRepository.save(newUser);
+                return generateTokenMap(savedUser);
             }
 
-            String token = jwtTokenConfig.generateToken(resultUser);
+        return generateTokenMap(existingUser.get());
+    }
 
-            tokenMap.put("token", token);
-            tokenMap.put("nickname", name);
-            tokenMap.put("email", email);
-            tokenMap.put("image", image);
-
-            br.close();
-
-        }catch (Exception e){
-            log.error("An error occurred while getting user info from KakaoService/getUserInfo: ", e);
-            tokenMap.put("error", "An error occurred while getting user info from Kakao login.");
-        }
-        tokenMap.put("success", "User information retrieved successfully.");
+    private HashMap<String, Object> generateTokenMap(User resultUser) {
+        String token = jwtTokenConfig.generateToken(resultUser);
+        HashMap<String, Object> tokenMap = new HashMap<>();
+        tokenMap.put("token", token);
+        tokenMap.put("nickname", resultUser.getNickName());
+        tokenMap.put("email", resultUser.getEmail());
+        tokenMap.put("image", resultUser.getImage());
         return tokenMap;
     }
 }
