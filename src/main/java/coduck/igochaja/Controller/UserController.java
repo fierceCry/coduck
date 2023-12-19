@@ -8,25 +8,15 @@ import coduck.igochaja.Model.User;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    private final UserService UserService;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserService personService) {
+        this.UserService = personService;
     }
 
-    @PostMapping("")
+    @PostMapping
     public User createUser(@RequestBody User user) {
-        return userService.createUser(user);
-    }
-
-    @PostMapping("/signup")
-    public User signUpUser(@RequestBody User user) {
-        return userService.createUser(user);
-    }
-
-    @PostMapping("/login")
-    public User authenticateUser(@RequestBody User login) {
-        return userService.loginUser(login.getEmail(), login.getPassword());
+        return UserService.createUser(user);
     }
 }
