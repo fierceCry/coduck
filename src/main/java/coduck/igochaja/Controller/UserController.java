@@ -19,4 +19,10 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return UserService.createUser(user);
     }
+
+    @GetMapping("/profile/another")
+    public User getUserByEmail(@RequestParam("email") String email, @RequestParam("social") String social) {
+        return UserService.getUserByEmail(email, social);
+    }
+
 }
