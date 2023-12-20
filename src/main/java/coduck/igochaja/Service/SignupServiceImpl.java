@@ -20,6 +20,4 @@ public class SignupServiceImpl implements SignupService {
         return signupRepository.save(signup);
     }
 
-    // 다른 회원가입 관련 메서드들을 구현할 수 있습니다.
-    // ...
 }
