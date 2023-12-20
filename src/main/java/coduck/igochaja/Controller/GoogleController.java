@@ -23,7 +23,7 @@ public class GoogleController {
     @GetMapping("/code")
     public void googleLogin(@RequestParam String code) {
         googleService.socialLogin(code);
-        System.out.println("컨트롤러");
+
     }
 
 }
