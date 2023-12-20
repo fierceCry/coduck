@@ -34,6 +34,7 @@ public class FileUploadController {
     @PatchMapping
     public ResponseEntity<Map<String, Object>> uploadFile(HttpServletRequest request, @RequestParam("file") MultipartFile file) {
         try {
+
             if (file.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(Map.of("message", "No file uploaded"));
