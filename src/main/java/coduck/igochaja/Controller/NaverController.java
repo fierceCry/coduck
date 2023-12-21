@@ -15,7 +15,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Map;
 import java.util.UUID;
+
+import static org.springframework.http.ResponseEntity.ok;
 
 @Controller
 @RequestMapping("/naver/oauth2")
@@ -33,12 +36,17 @@ public class NaverController {
     }
 
     @GetMapping("/login")
-    public void redirectToNaverAuthorization(HttpServletResponse response, HttpSession session) throws IOException {
-        String stateToken = generateStateToken();
-        String naverAuthUrl = buildNaverAuthUrl(stateToken);
+    public ResponseEntity<Object> redirectToNaverAuthorization(HttpServletResponse response, HttpSession session) {
+        try {
+            String stateToken = generateStateToken();
+            String naverAuthUrl = buildNaverAuthUrl(stateToken);
 
-        session.setAttribute("stateToken", stateToken);
-        response.sendRedirect(naverAuthUrl);
+            session.setAttribute("stateToken", stateToken);
+            response.sendRedirect(naverAuthUrl);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "리디렉션 중 오류가 발생했습니다: " + e.getMessage()));
+        }
     }
 
     private String generateStateToken() {
@@ -54,27 +62,27 @@ public class NaverController {
                 .toUriString();
     }
 
-    @GetMapping("/callback")
     @ResponseBody
-    public ResponseEntity<?> handleNaverCallback(@RequestParam("code") String code, @RequestParam(value = "state", required = false) String state, HttpServletRequest request) {
+    @GetMapping("/callback")
+    public ResponseEntity<Map<String, Object>> handleNaverCallback(@RequestParam("code") String code, @RequestParam(value = "state", required = false) String state, HttpServletRequest request) {
 
         HttpSession session = request.getSession(false);
         if (session == null || !state.equals(session.getAttribute("stateToken"))) {
-            return new ResponseEntity<>("Invalid state token", HttpStatus.FORBIDDEN);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "Invalid state token"));
         }
 
         ResponseEntity<String> responseEntity = exchangeCodeForAccessToken(code, state);
         if (!responseEntity.getStatusCode().is2xxSuccessful()) {
-            return new ResponseEntity<>("Failed to retrieve access token", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Failed to retrieve access token"));
         }
 
         String accessToken = new JSONObject(responseEntity.getBody()).optString("access_token");
         if(accessToken.isEmpty()){
-            return new ResponseEntity<>("Access token not found", HttpStatus.BAD_REQUEST);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Access token not found"));
         }
 
-        ResponseEntity<?> userInfo = naverService.getUserInfo(accessToken);
-        return new ResponseEntity<>(userInfo, HttpStatus.OK);
+        Map<String, Object> userInfo = naverService.getUserInfo(accessToken);
+        return ResponseEntity.ok(userInfo);
     }
 
     private ResponseEntity<String> exchangeCodeForAccessToken(String code, String state) {
@@ -95,30 +103,11 @@ public class NaverController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        // 세션 무효화
+    public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
-//
-//        // 쿠키 삭제
-//        Cookie[] cookies = request.getCookies();
-//        if (cookies != null) {
-//            for (Cookie cookie : cookies) {
-//                if (cookie.getName().equals("JSESSIONID")) { // 인증 관련 쿠키 이름으로 변경
-//                    cookie.setValue("");
-//                    cookie.setPath("/");
-//                    cookie.setMaxAge(0);
-//                    response.addCookie(cookie);
-//                }
-//            }
-//        }
-//        // 캐시 제어 헤더 추가
-//        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-//        response.setHeader("Pragma", "no-cache");
-//        response.setDateHeader("Expires", 0);
-
-        return "redirect:/naver/oauth2/login"; // 로그인 페이지로 리다이렉트
+        return "redirect:/naver/oauth2/login";
     }
 }
