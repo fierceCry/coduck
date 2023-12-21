@@ -1,6 +1,8 @@
 package coduck.igochaja.Service;
 
 import coduck.igochaja.Config.GoogleConfig;
+import coduck.igochaja.Config.JwtTokenConfig;
+import coduck.igochaja.Repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -15,10 +17,15 @@ public class GoogleService {
     private final RestTemplate restTemplate = new RestTemplate();
 
     private GoogleConfig googleConfig;
+    private UserRepository userRepository;
+    private JwtTokenConfig jwtTokenConfig;
 
     @Autowired
-    public GoogleService(GoogleConfig googleConfig) {
+    public GoogleService(GoogleConfig googleConfig, UserRepository userRepository, JwtTokenConfig jwtTokenConfig)
+    {
+        this.userRepository = userRepository;
         this.googleConfig = googleConfig;
+        this.jwtTokenConfig = jwtTokenConfig;
     }
     public void socialLogin(String code) {
         String accessToken = getAccessToken(code);
@@ -59,5 +66,7 @@ public class GoogleService {
         HttpEntity entity = new HttpEntity(headers);
         return restTemplate.exchange(googleConfig.getResourceUrl(), HttpMethod.GET, entity, JsonNode.class).getBody();
     }
+
+
 }
 
