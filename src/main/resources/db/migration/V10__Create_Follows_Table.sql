@@ -1,0 +1,7 @@
+CREATE TABLE follows (
+    id SERIAL PRIMARY KEY,
+    login_id INT NOT NULL REFERENCES users(id),
+    follow_id INT NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
