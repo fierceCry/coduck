@@ -1,44 +1,68 @@
 package coduck.igochaja.Repository;
 
-import coduck.igochaja.Model.User;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.rmi.MarshalledObject;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class UserRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    public UserRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public User findByEmail(String email, String social) {
+    public Map<String, Object> saveUser(String socialId, String name, String email, String social, String image) {
         try {
-            String sqlQuery = "SELECT * FROM users WHERE email = ? AND social = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, new Object[]{email, social}, new BeanPropertyRowMapper<>(User.class));
-        } catch (EmptyResultDataAccessException e) {
-            return null;
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            String sql = "INSERT INTO users (social_id, name, email, social, image) VALUES (?, ?, ?, ?, ?)";
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, socialId);
+                ps.setString(2, name);
+                ps.setString(3, email);
+                ps.setString(4, social);
+                ps.setString(5, image);
+                return ps;
+            }, keyHolder);
+            return keyHolder.getKeys();
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Error while processing");
+            return errorResponse;
         }
     }
 
-    public User createUser(User user) {
-        String insertQuery = "INSERT INTO users (social_id, email, password, nick_name, social, report, image) " +
-                             "VALUES (?, ?, ?, ?, ?, ?, ?) " +
-                             "RETURNING id, social_id as socialId, email, nick_name as nickName, social, report, image, created_at as createdAt, updated_at as updatedAt";
-        return jdbcTemplate.queryForObject(
-                insertQuery,
-                new Object[]{user.getSocialId(),
-                            user.getEmail(),
-                            user.getPassword(),
-                            user.getNickName(),
-                            user.getSocial(),
-                            user.getReport(),
-                            user.getImage()
-                },
-                new BeanPropertyRowMapper<>(User.class)
-        );
+    public Map<String, Object> findUserByEmailAndSocial(String email, String social) {
+        String sql = "SELECT id, name, email, social, image, social_id FROM users WHERE email = ? AND social = ?";
+        List<Map<String, Object>> users = jdbcTemplate.queryForList(sql, email, social);
+        return users.isEmpty() ? null : users.get(0);
+    }
+
+    public int updateProfileImage(String fileUrl, String userId) {
+        int id = Integer.parseInt(userId);
+        String sql = "UPDATE users SET image = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, fileUrl, id);
+    }
+
+    public Map<String, Object> findUserById(String userId) {
+        int id = Integer.parseInt(userId);
+        String sql = "SELECT id, name, email, social, image, social_id FROM users WHERE id = ?";
+        List<Map<String, Object>> users = jdbcTemplate.queryForList(sql, id);
+        return users.isEmpty() ? null : users.get(0);
+    }
+
+    public Map<String, Object> EamilCheck(String userEamil, String userName){
+        String sql = "SELECT email, name FROM users WHERE email = ? AND name = ?";
+        List<Map<String, Object>> users = jdbcTemplate.queryForList(sql, userEamil, userName);
+        return users.isEmpty() ? null : users.get(0);
     }
 }
