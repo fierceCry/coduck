@@ -24,9 +24,9 @@ public class NaverService {
             String userInfo = requestUserInfo(accessToken);
             return processUserInfo(userInfo);
         } catch (Exception e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("error", "오류가 발생했습니다: " + e.getMessage());
-            return errorResponse;
+            Map<String, Object> Response = new HashMap<>();
+            Response.put("message", "오류가 발생했습니다");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Response).getBody();
         }
     }
 
@@ -41,7 +41,7 @@ public class NaverService {
 
         ResponseEntity<String> response = restTemplate.exchange(naverApiMeUrl, HttpMethod.GET, entity, String.class);
         if (response.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("사용자 정보 요청 실패");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자를 정보조회 오류").getBody();
         }
         return response.getBody();
     }
@@ -62,7 +62,7 @@ public class NaverService {
             if (savedUser != null && !savedUser.isEmpty()) {
                 return generateTokenMap(savedUser);
             } else {
-                throw new RuntimeException("User registration failed");
+                return Map.of("message", "user registration failed", "status", HttpStatus.BAD_REQUEST.value());
             }
         }
     }

@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.rmi.MarshalledObject;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -46,19 +48,21 @@ public class UserRepository {
     }
 
     public int updateProfileImage(String fileUrl, String userId) {
-        try {
-            int id = Integer.parseInt(userId);
-            String sql = "UPDATE users SET image = ? WHERE id = ?";
-            return jdbcTemplate.update(sql, fileUrl, id);
-        }catch (Exception e) {
-            return 0;
-        }
+        int id = Integer.parseInt(userId);
+        String sql = "UPDATE users SET image = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, fileUrl, id);
     }
 
     public Map<String, Object> findUserById(String userId) {
         int id = Integer.parseInt(userId);
         String sql = "SELECT id, name, email, social, image, social_id FROM users WHERE id = ?";
         List<Map<String, Object>> users = jdbcTemplate.queryForList(sql, id);
+        return users.isEmpty() ? null : users.get(0);
+    }
+
+    public Map<String, Object> EamilCheck(String userEamil, String userName){
+        String sql = "SELECT email, name FROM users WHERE email = ? AND name = ?";
+        List<Map<String, Object>> users = jdbcTemplate.queryForList(sql, userEamil, userName);
         return users.isEmpty() ? null : users.get(0);
     }
 }
