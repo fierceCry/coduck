@@ -10,17 +10,13 @@ import com.nimbusds.jose.shaded.gson.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.stereotype.Service;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 
@@ -90,7 +86,6 @@ public class KakaoService extends DefaultOAuth2UserService {
         }catch (Exception e){
             log.error("An error occurred while getting user info from KakaoService/getAccessToken: ", e);
         }
-        log.error("getAccessToken successfully.");
         return accessToken;
     }
 
@@ -131,13 +126,16 @@ public class KakaoService extends DefaultOAuth2UserService {
             String social = "KAKAO";
 
             Optional<User> existingUser = Optional.ofNullable(userRepository.findByEmail(email, social));
+
             if (!existingUser.isPresent()) {
                 User newUser = new User(socialId, name, email, social, image);
-                User savedUser = userRepository.save(newUser);
-                return generateTokenMap(savedUser);
+                User savedUserInfo = userRepository.createUser(newUser);
+                return generateTokenMap(savedUserInfo);
             }
 
-        return generateTokenMap(existingUser.get());
+            User userInfo = existingUser.get();
+
+            return generateTokenMap(userInfo);
     }
 
     private HashMap<String, Object> generateTokenMap(User resultUser) {

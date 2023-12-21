@@ -1,26 +1,44 @@
 package coduck.igochaja.Repository;
 
-
 import coduck.igochaja.Model.User;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+@Repository
+public class UserRepository {
 
-public interface UserRepository extends MongoRepository<User, String> {
+    private final JdbcTemplate jdbcTemplate;
 
-    default User saveUser(String socialId, String name, String email, String social, String image) {
-        return save(new User(socialId, name, email, social, image));
+    public UserRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
-    public User findByEmail(String email, String social);
-
-    default User ProfileImage(String fileUrl, String objectId) {
-        return findById(objectId)
-                .map(user -> {
-                    user.setImage(fileUrl);
-                    return save(user);
-                })
-                .orElse(null);
+    public User findByEmail(String email, String social) {
+        try {
+            String sqlQuery = "SELECT * FROM users WHERE email = ? AND social = ?";
+            return jdbcTemplate.queryForObject(sqlQuery, new Object[]{email, social}, new BeanPropertyRowMapper<>(User.class));
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
+    public User createUser(User user) {
+        String insertQuery = "INSERT INTO users (social_id, email, password, nick_name, social, report, image) " +
+                             "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                             "RETURNING id, social_id as socialId, email, nick_name as nickName, social, report, image, created_at as createdAt, updated_at as updatedAt";
+        return jdbcTemplate.queryForObject(
+                insertQuery,
+                new Object[]{user.getSocialId(),
+                            user.getEmail(),
+                            user.getPassword(),
+                            user.getNickName(),
+                            user.getSocial(),
+                            user.getReport(),
+                            user.getImage()
+                },
+                new BeanPropertyRowMapper<>(User.class)
+        );
+    }
 }
