@@ -1,0 +1,9 @@
+CREATE TABLE communication (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id),
+    content VARCHAR(255),
+    hits INT DEFAULT 0,
+    tags VARCHAR[],
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
