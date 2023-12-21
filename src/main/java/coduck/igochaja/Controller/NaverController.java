@@ -16,7 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.UUID;
-import jakarta.servlet.http.Cookie;
 
 @Controller
 @RequestMapping("/naver/oauth2")
