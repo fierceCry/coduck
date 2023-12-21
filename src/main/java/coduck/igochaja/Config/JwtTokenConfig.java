@@ -1,31 +1,29 @@
 package coduck.igochaja.Config;
 
 import io.jsonwebtoken.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import coduck.igochaja.Model.User;
 import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtTokenConfig {
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenConfig.class);
 
     @Value("${coduck.jwt.secret}")
     private String jwtSecret;
 
-    public String generateToken(User user) {
+    public String generateToken(Map<String, Object> result) {
+
         long now = System.currentTimeMillis();
         long expirationTime = now + 18000000;
 
         return Jwts.builder()
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(expirationTime))
-                .claim("_id", user.getId())
-                .claim("socialId", user.getSocialId())
-                .claim("social", user.getSocial())
+                .claim("id", result.get("id")) // 또는 적절한 키
+                .claim("socialId", result.get("social_id"))
+                .claim("social", result.get("social"))
                 .signWith(SignatureAlgorithm.HS256, jwtSecret)
                 .compact();
     }
@@ -35,14 +33,14 @@ public class JwtTokenConfig {
             Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            logger.error("JWT Token validation error", e);
             return false;
         }
     }
 
     public String getSocialId(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        return claims.get("_id", String.class);
+        int id = (int) claims.get("id");
+        return Integer.toString(id);
     }
 
     public String extractToken(HttpServletRequest request) {
