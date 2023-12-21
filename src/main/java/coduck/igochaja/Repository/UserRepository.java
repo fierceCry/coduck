@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-
-import java.rmi.MarshalledObject;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.HashMap;
